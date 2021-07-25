@@ -1,23 +1,62 @@
-<!--index.wxml-->
-<view class="container">
-  <view class="userinfo">
-    <block wx:if="{{canIUseOpenData}}">
-      <view class="userinfo-avatar" bindtap="bindViewTap">
-        <open-data type="userAvatarUrl"></open-data>
-      </view>
-      <open-data type="userNickName"></open-data>
-    </block>
-    <block wx:elif="{{!hasUserInfo}}">
-      <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
-      <button wx:elif="{{canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
-      <view wx:else> 请使用1.4.4及以上版本基础库 </view>
-    </block>
-    <block wx:else>
-      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
-    </block>
+<!-- 顶部区域 -->
+<view id="header" class="header-box" style="width:100%;padding-top:{{menuButton.top}}px;">
+  <view class="search-box" style="width:calc(100% - {{menuButton.width}}px);">
+    <van-search shape="round" style="width:calc(100% - 30rpx);" value="{{ searchValue }}" placeholder="搜索"
+      bind:focus="onInputFocus" bind:search="onSearch" />
   </view>
-  <view class="usermotto">
-    <text class="user-motto">{{motto}}</text>
+
+  <!-- 过滤 -->
+  <view class="filter-box">
+    <view class="filter-dropdown-box">
+      <van-dropdown-menu active-color="#2BA245">
+        <van-dropdown-item id="dropdown-item1" title="{{filterTitleBest}}" bind:change="onChangeBest"
+          value="{{ valueBest }}" options="{{ optionBest }}" />
+        <van-dropdown-item id="dropdown-item2" title="{{filterTitleCategory}}" bind:change="onChangeCategory"
+          value="{{ valueCategory }}" options="{{ optionCategory }}" />
+        <van-dropdown-item id="dropdown-item3" title="{{filterTitleStructure}}" bind:change="onChangeStructure"
+          value="{{ valueStructure }}" options="{{ optionStructure }}" />
+        <van-dropdown-item id="dropdown-item4" title="{{filterTitleColor}}" bind:change="onChangeColor"
+          value="{{ valueColor }}" options="{{ optionColor }}" />
+      </van-dropdown-menu>
+    </view>
   </view>
 </view>
+
+<!-- 瀑布流区域 -->
+<scroll-view class="main-container" scroll-y="true" style="height:calc(100% - {{header.height}}px)"
+  bindscrolltolower="onLower" scroll-anchoring="true" show-scrollbar="{{false}}" enhanced="true"
+  enable-back-to-top="true" lower-threshold="{{height}}">
+  <view id="waterfall-list" class="waterfall-list" bindtap="onPreview">
+
+    <block wx:if="!loadingInit">
+        <!-- 有数据 -->
+      <block wx:if="{{!isEmpty}}">
+        <view wx:for="{{arrArr}}" wx:key="index" wx:for-item="arr" class="waterfall-col" style="width: {{colWidth}}px">
+
+          <!-- 子项 -->
+          <view wx:for="{{arr}}" wx:key="index" class="waterfall-item">
+            <view class="bg-help"
+              style="width:{{item.w-3}}px;height:{{item.h-6}}px;background-color: {{item.backgroundColor}};">
+              <image id="{{item.id}}" src="{{item.url}}" mode="widthFix" lazy-load class="item-image"
+                data-item="{{item}}" />
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <!-- 空状态 -->
+      <view wx:if="{{!loadingInit&&isEmpty}}" class="empty">
+        <van-empty image="search" description="空空如也~" />
+      </view>
+    </block>
+
+  </view>
+</scroll-view>
+
+<!-- 加载更多的视图 -->
+<view wx:if="{{loadingMore}}" class="loading-box">
+  <van-loading size="20px"></van-loading>
+</view>
+
+<!-- 辅助视图-toast -->
+<van-toast id="van-toast" />

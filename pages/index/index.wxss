@@ -1,19 +1,141 @@
-/**index.wxss**/
-.userinfo {
+.van-dropdown-menu__item {
+  right: 8rpx;
+  position: relative;
+}
+
+.van-dropdown-menu {
+  box-shadow: none !important;
+}
+
+page {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+}
+
+.header-box {
+  position: relative;
+  background-color: white;
+}
+
+/* 搜索 */
+.search-box {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  color: #aaa;
+  background-color: white;
 }
 
-.userinfo-avatar {
+.van-search {
+  padding: 0px 12px !important;
+}
+
+.main-container {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 10rpx;
+  background-color: #F7F7F7;
+}
+
+/* 瀑布流内层容器 */
+.waterfall-list {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+}
+
+/* 列 */
+.waterfall-col {
+  align-self: flex-start;
+  padding: 0 10rpx;
+  box-sizing: border-box;
+}
+
+/* 图片项 */
+.waterfall-item {
+  position: relative;
+  box-sizing: border-box;
+  font-size: 0;
+  margin: 40rpx 0;
   overflow: hidden;
-  width: 128rpx;
-  height: 128rpx;
-  margin: 20rpx;
-  border-radius: 50%;
+  border-radius: 14rpx;
 }
 
-.usermotto {
-  margin-top: 200px;
+.bg-help {
+  position: relative;
+  border-radius: 14rpx;
+  box-sizing: border-box;
+}
+
+.item-image {
+  width: 100%;
+}
+
+.item-image {
+  width: 100%;
+}
+
+.item-order-text {
+  display: block;
+  position: absolute;
+  display: inline-block;
+  height: 100rpx;
+  color: red;
+  font-size: 30rpx;
+}
+
+.item-height-text {
+  display: block;
+  position: absolute;
+  top: 20rpx;
+  display: inline-block;
+  height: 100rpx;
+  color: blue;
+  font-size: 30rpx;
+}
+
+/* 过滤 */
+.filter-box {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  background-color: white;
+}
+
+.filter-button-box {
+  display: flex;
+  width: 50%;
+}
+
+.filter-button {
+  flex: 1;
+  text-align: center;
+}
+
+.filter-dropdown-box {
+  width: 100%;
+}
+
+/* 加载状态 */
+.loading-box {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80rpx;
+  background-color: #F7F7F7;
+}
+
+/* 空视图 */
+.empty {
+  margin-top: 30rpx;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
 }

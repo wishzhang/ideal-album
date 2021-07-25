@@ -1,10 +1,17 @@
-/**app.wxss**/
-.container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 200rpx 0;
-  box-sizing: border-box;
-} 
+
+
+.app-padding{
+  padding: 0 24rpx;
+}
+
+page {
+  --button-primary-background-color: #2BA245;
+  --button-primary-border-color: #2BA245;
+}
+
+::-webkit-scrollbar {
+  display:none;
+  width:0;
+  height:0;
+  color:transparent;
+}
