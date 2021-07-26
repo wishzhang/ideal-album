@@ -12,9 +12,14 @@ function randomColor() {
 
 let order = 0;
 let heightArr = [];
+let preColNum = 0;
+const KEY_COL_NUM = 'KEY_COL_NUM';
 
 Page({
   data: {
+    // 左侧
+    sideShow: false,
+
     header: {},
     menuButton: {},
     // 搜索
@@ -87,14 +92,17 @@ Page({
     colWidth: 0,
 
     // 瀑布流数据
-    colNum: 3,
+    colNum: wx.getStorageSync(KEY_COL_NUM)||3,
+    list: [],
     arrArr: [],
     page: {
       currentPage: 1,
-      pageSize: 10,
+      // 请求接口没有这个字段，用于前端分页
+      pageSize: 30,
       total: 0
     },
     isEmpty: true,
+    hasMore: false,
     // 是否加载中
     loadingMore: false,
     loadingInit: false
@@ -168,6 +176,8 @@ Page({
     this.fetchInitData();
   },
   fetchInitData() {
+    order = 0;
+
     Toast.loading({
       duration: 0,
       forbidClick: true,
@@ -184,7 +194,7 @@ Page({
     this.fetchData();
   },
   // 初始化
-  onLoad() {
+  onShow() {
     this.setData({
       menuButton: wx.getMenuButtonBoundingClientRect()
     });
@@ -207,10 +217,16 @@ Page({
 
      this.fetchInitData();
   },
+  onHide(){
+    wx.setStorage({
+      key: KEY_COL_NUM,
+      data: this.data.colNum
+    })
+  },
   // 获取数据
   fetchData() {
     const params = {};
-    params.phrase = this.data.searchValue;
+    params.phrase = this.getPhrase();
     params.page = this.data.page.currentPage;
 
     if (this.data.valueStructure !== 0) {
@@ -261,7 +277,14 @@ Page({
           return obj;
         })
 
-        this.setList(list)
+        this.data.list = list;
+        this.data.page.total = list.length;
+
+
+        const current = (this.data.page.currentPage-1) * this.data.page.pageSize;
+        const arr = list.slice(current, current + this.data.page.pageSize);
+         this.addListToArrArr(arr);
+        this.showArrArr();
       },
       fail: (error) => {
         this.setData({
@@ -273,6 +296,9 @@ Page({
         Toast.fail('数据获取失败');
       }
     })
+  },
+  getPhrase(){
+    return this.data.searchValue;
   },
   validImage(el) {
     const str = '//alifei';
@@ -294,10 +320,10 @@ Page({
     const str = '//alifei';
     let url = 'https://images.weserv.nl/?url=';
 
-    if (el.equalw_url.startsWith(str)) {
-      url += el.equalw_url;
-    } else if (el.equalh_url.startsWith(str)) {
+    if(this.data.colNum<=2){
       url += el.equalh_url;
+    }else{
+      url += el.equalw_url;
     }
     return url;
   },
@@ -317,9 +343,24 @@ Page({
     });
   },
   // push
-  setList(list) {
-    const isEmpty = list.length === 0;
+  addList(list) {
+    this.addListToArrArr(list);
+    this.showArrArr();
+  },
+  showArrArr(){
+    const isEmpty = this.data.arrArr.every(arr=>{
+      return arr.length===0;
+    });
 
+    this.setData({
+      arrArr: this.data.arrArr,
+      isEmpty: isEmpty,
+      loadingMore: false,
+      loadingInit: false
+    });
+    Toast.clear();
+  },
+  addListToArrArr(list){
     for (let item of list) {
       const minIndex = this.getMinIndex();
       if (this.data.arrArr.length === 0) {
@@ -328,17 +369,6 @@ Page({
       this.data.arrArr[minIndex].push(item);
       heightArr[minIndex] += item.h;
     }
-
-    this.setData({
-      arrArr: this.data.arrArr,
-      isEmpty: isEmpty
-    }, () => {
-      this.setData({
-        loadingMore: false,
-        loadingInit: false
-      })
-      Toast.clear();
-    })
   },
   getMinIndex() {
     const minNum = Math.min(...heightArr);
@@ -346,13 +376,28 @@ Page({
       return num<=minNum;
     });
   },
+  getMaxHeight(){
+    const maxArr = this.data.arrArr.map(arr=>{
+      return arr.reduce((total, el)=>{
+        return total + el.h;
+      },0);
+    });
+    return Math.max(...maxArr);
+  },
   // 底部触发
   onLower() {
-    this.setData({
-      loadingMore: true
-    })
-    this.data.page.currentPage++;
-    this.fetchData();
+    const loadedNum = this.data.arrArr.reduce((total,arr)=>{
+      return total+arr.length;
+    },0);
+    const hasMore = loadedNum<  this.data.page.total;
+
+    if(hasMore){
+      this.data.page.currentPage++;
+  
+      const current = (this.data.page.currentPage-1) * this.data.page.pageSize;
+      const arr = this.data.list.slice(current, current + this.data.page.pageSize);
+      this.addList(arr);
+    }
   },
   // 预览图片
   onPreview(e) {
@@ -369,5 +414,24 @@ Page({
     this.selectComponent('#dropdown-item2').toggle(false);
     this.selectComponent('#dropdown-item3').toggle(false);
     this.selectComponent('#dropdown-item4').toggle(false);
+  },
+  onSideClose(){
+    this.setData({
+      sideShow: false
+    })
+    if(preColNum!==this.data.colNum){
+      this.onShow();
+    }
+  },
+  onShowSide(){
+    preColNum = this.data.colNum;
+    this.setData({
+      sideShow: true
+    })
+  },
+  onStepChange(e){
+    this.setData({
+      colNum: e.detail
+    })
   }
 })

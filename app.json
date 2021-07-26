@@ -11,7 +11,13 @@
     "van-dropdown-item": "@vant/weapp/dropdown-item/index",
     "van-loading": "@vant/weapp/loading/index",
     "van-toast": "@vant/weapp/toast/index",
-    "van-empty": "@vant/weapp/empty/index"
+    "van-empty": "@vant/weapp/empty/index",
+    "van-divider": "@vant/weapp/divider/index",
+    "van-icon": "@vant/weapp/icon/index",
+    "van-popup": "@vant/weapp/popup/index",
+    "van-stepper": "@vant/weapp/stepper/index",
+    "van-cell": "@vant/weapp/cell/index",
+    "van-cell-group": "@vant/weapp/cell-group/index"
   },
   "window":{
     "navigationStyle": "custom",

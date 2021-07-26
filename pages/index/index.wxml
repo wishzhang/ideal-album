@@ -1,8 +1,11 @@
 <!-- 顶部区域 -->
 <view id="header" class="header-box" style="width:100%;padding-top:{{menuButton.top}}px;">
   <view class="search-box" style="width:calc(100% - {{menuButton.width}}px);">
-    <van-search shape="round" style="width:calc(100% - 30rpx);" value="{{ searchValue }}" placeholder="搜索"
-      bind:focus="onInputFocus" bind:search="onSearch" />
+    <!-- 显示隐藏左侧 -->
+    <van-icon custom-style="padding: 5rpx 12rpx 5rpx 0;" name="user-o" size="19px" bind:click="onShowSide" />
+    <!-- 搜索输入 -->
+    <van-search shape="round" class="search-input" value="{{ searchValue }}" placeholder="搜索" bind:focus="onInputFocus"
+      bind:search="onSearch" left-icon="" />
   </view>
 
   <!-- 过滤 -->
@@ -22,6 +25,20 @@
   </view>
 </view>
 
+<!-- 左侧弹出层 -->
+<van-popup z-index="1000" show="{{ sideShow }}" position="left" custom-style="width: 70%;height: 100%;"
+  bind:close="onSideClose">
+  <view class="side-content-box">
+    <van-cell title="列数">
+      <van-stepper class="side-stepper" 
+      min="1"
+      max="5"
+      integer="true" 
+      value="{{colNum}}" step="1" button-size="26" bind:change="onStepChange"/>
+    </van-cell>
+  </view>
+</van-popup>
+
 <!-- 瀑布流区域 -->
 <scroll-view class="main-container" scroll-y="true" style="height:calc(100% - {{header.height}}px)"
   bindscrolltolower="onLower" scroll-anchoring="true" show-scrollbar="{{false}}" enhanced="true"
@@ -29,7 +46,7 @@
   <view id="waterfall-list" class="waterfall-list" bindtap="onPreview">
 
     <block wx:if="!loadingInit">
-        <!-- 有数据 -->
+      <!-- 有数据 -->
       <block wx:if="{{!isEmpty}}">
         <view wx:for="{{arrArr}}" wx:key="index" wx:for-item="arr" class="waterfall-col" style="width: {{colWidth}}px">
 
@@ -37,6 +54,8 @@
           <view wx:for="{{arr}}" wx:key="index" class="waterfall-item">
             <view class="bg-help"
               style="width:{{item.w-3}}px;height:{{item.h-6}}px;background-color: {{item.backgroundColor}};">
+              <!-- text item.order 供测试 -->
+              <!-- <text class="item-order-text">{{item.order}}</text> -->
               <image id="{{item.id}}" src="{{item.url}}" mode="widthFix" lazy-load class="item-image"
                 data-item="{{item}}" />
             </view>
@@ -47,6 +66,10 @@
       <!-- 空状态 -->
       <view wx:if="{{!loadingInit&&isEmpty}}" class="empty">
         <van-empty image="search" description="空空如也~" />
+      </view>
+      <!-- 没有更多了 -->
+      <view class="hasmore">
+        <van-divider wx:if="{{!loadingInit&&!isEmpty&&!hasmore}}" contentPosition="center">没有更多数据了</van-divider>
       </view>
     </block>
 
