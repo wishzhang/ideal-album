@@ -11,12 +11,13 @@ function randomColor() {
 }
 
 let order = 0;
-let heightArr = [];
 let preColNum = 0;
+let list = [];
 const KEY_COL_NUM = 'KEY_COL_NUM';
 
 Page({
   data: {
+    heightArr: [],
     // 左侧
     sideShow: false,
 
@@ -92,8 +93,7 @@ Page({
     colWidth: 0,
 
     // 瀑布流数据
-    colNum: wx.getStorageSync(KEY_COL_NUM)||3,
-    list: [],
+    colNum: wx.getStorageSync(KEY_COL_NUM) || 3,
     arrArr: [],
     page: {
       currentPage: 1,
@@ -194,7 +194,7 @@ Page({
     this.fetchData();
   },
   // 初始化
-  onShow() {
+  onLoad() {
     this.setData({
       menuButton: wx.getMenuButtonBoundingClientRect()
     });
@@ -213,11 +213,11 @@ Page({
         width: w,
         colWidth: colWidth
       });
-    }).exec();
 
-     this.fetchInitData();
+      this.fetchInitData();
+    }).exec();
   },
-  onHide(){
+  onHide() {
     wx.setStorage({
       key: KEY_COL_NUM,
       data: this.data.colNum
@@ -250,7 +250,7 @@ Page({
       data: params,
       success: (res) => {
         const data = res.data;
-        let list = data.list || [];
+        list = data.list || [];
 
         list = list.filter(el => {
           return this.validImage(el);
@@ -277,13 +277,11 @@ Page({
           return obj;
         })
 
-        this.data.list = list;
         this.data.page.total = list.length;
 
-
-        const current = (this.data.page.currentPage-1) * this.data.page.pageSize;
+        const current = (this.data.page.currentPage - 1) * this.data.page.pageSize;
         const arr = list.slice(current, current + this.data.page.pageSize);
-         this.addListToArrArr(arr);
+        this.addListToArrArr(arr);
         this.showArrArr();
       },
       fail: (error) => {
@@ -297,7 +295,7 @@ Page({
       }
     })
   },
-  getPhrase(){
+  getPhrase() {
     return this.data.searchValue;
   },
   validImage(el) {
@@ -320,9 +318,11 @@ Page({
     const str = '//alifei';
     let url = 'https://images.weserv.nl/?url=';
 
-    if(this.data.colNum<=2){
+    if (this.data.colNum === 1) {
+      url += el.url800;
+    } else if (this.data.colNum === 2 || this.data.colNum === 3) {
       url += el.equalh_url;
-    }else{
+    } else {
       url += el.equalw_url;
     }
     return url;
@@ -333,23 +333,23 @@ Page({
   },
   initArrArr() {
     this.data.arrArr = [];
-    heightArr = [];
+    this.data.heightArr = [];
     for (let i = 0; i < this.data.colNum; i++) {
       this.data.arrArr.push([]);
-      heightArr.push(0);
+      this.data.heightArr.push(0);
     }
     this.setData({
       arrArr: this.data.arrArr
     });
   },
   // push
-  addList(list) {
-    this.addListToArrArr(list);
+  addList(ls) {
+    this.addListToArrArr(ls);
     this.showArrArr();
   },
-  showArrArr(){
-    const isEmpty = this.data.arrArr.every(arr=>{
-      return arr.length===0;
+  showArrArr() {
+    const isEmpty = this.data.arrArr.every(arr => {
+      return arr.length === 0;
     });
 
     this.setData({
@@ -360,42 +360,42 @@ Page({
     });
     Toast.clear();
   },
-  addListToArrArr(list){
-    for (let item of list) {
+  addListToArrArr(ls) {
+    for (let item of ls) {
       const minIndex = this.getMinIndex();
       if (this.data.arrArr.length === 0) {
         this.initArrArr();
       }
       this.data.arrArr[minIndex].push(item);
-      heightArr[minIndex] += item.h;
+      this.data.heightArr[minIndex] += item.h;
     }
   },
   getMinIndex() {
-    const minNum = Math.min(...heightArr);
-    return heightArr.findIndex(num=>{
-      return num<=minNum;
+    const minNum = Math.min(...this.data.heightArr);
+    return this.data.heightArr.findIndex(num => {
+      return num <= minNum;
     });
   },
-  getMaxHeight(){
-    const maxArr = this.data.arrArr.map(arr=>{
-      return arr.reduce((total, el)=>{
+  getMaxHeight() {
+    const maxArr = this.data.arrArr.map(arr => {
+      return arr.reduce((total, el) => {
         return total + el.h;
-      },0);
+      }, 0);
     });
     return Math.max(...maxArr);
   },
   // 底部触发
   onLower() {
-    const loadedNum = this.data.arrArr.reduce((total,arr)=>{
-      return total+arr.length;
-    },0);
-    const hasMore = loadedNum<  this.data.page.total;
+    const loadedNum = this.data.arrArr.reduce((total, arr) => {
+      return total + arr.length;
+    }, 0);
+    const hasMore = loadedNum < this.data.page.total;
 
-    if(hasMore){
+    if (hasMore) {
       this.data.page.currentPage++;
-  
-      const current = (this.data.page.currentPage-1) * this.data.page.pageSize;
-      const arr = this.data.list.slice(current, current + this.data.page.pageSize);
+
+      const current = (this.data.page.currentPage - 1) * this.data.page.pageSize;
+      const arr = list.slice(current, current + this.data.page.pageSize);
       this.addList(arr);
     }
   },
@@ -415,21 +415,21 @@ Page({
     this.selectComponent('#dropdown-item3').toggle(false);
     this.selectComponent('#dropdown-item4').toggle(false);
   },
-  onSideClose(){
+  onSideClose() {
     this.setData({
       sideShow: false
     })
-    if(preColNum!==this.data.colNum){
-      this.onShow();
+    if (preColNum !== this.data.colNum) {
+      this.onLoad();
     }
   },
-  onShowSide(){
+  onShowSide() {
     preColNum = this.data.colNum;
     this.setData({
       sideShow: true
     })
   },
-  onStepChange(e){
+  onStepChange(e) {
     this.setData({
       colNum: e.detail
     })
